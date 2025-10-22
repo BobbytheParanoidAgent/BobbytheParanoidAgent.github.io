@@ -1,13 +1,4 @@
 <!DOCTYPE html>
-<html>
-<head>
-<title>Transmission Active</title>
-</head>
-<body>
-<h1>Signal Received. Standby for assets.</h1>
-</body>
-</html>
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -22,7 +13,7 @@
             --background-color: #0d0d0d;
             --text-color: #00ffc8; /* Neon/Electric Teal */
             --accent-color: #00aaff; /* Subtle Blue for flicker */
-            --font-family: 'Helvetica Neue', Arial, sans-serif;
+            --font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
         }
 
         * {
@@ -37,6 +28,8 @@
             background-color: var(--background-color);
             color: var(--text-color);
             font-family: var(--font-family);
+            /* Ensure the smooth animation starts immediately */
+            transition: background-color 0.5s ease;
         }
 
         /*
@@ -50,17 +43,24 @@
             text-align: center;
         }
 
+        .content-wrapper {
+            display: flex;
+            flex-direction: column; /* Stack H1 and button vertically */
+            align-items: center;
+            gap: 40px; /* Spacing between text and button */
+        }
+
         .hero-text {
             font-size: clamp(2rem, 8vw, 6rem); /* Responsive font size */
             font-weight: 200; /* Light font weight for a sleek look */
             letter-spacing: 0.5rem;
             text-transform: uppercase;
-            position: relative; /* Needed for the pseudo-element glow */
+            position: relative;
             cursor: default;
         }
 
         /*
-        * 3. SLEEK ANIMATIONS
+        * 3. SLEEK TEXT ANIMATIONS (EXISTING)
         */
 
         /* Subtle Glow Effect on the text */
@@ -69,8 +69,8 @@
                 0 0 5px var(--text-color),
                 0 0 10px var(--text-color),
                 0 0 20px rgba(0, 255, 200, 0.4);
-            animation: fadeIn 2s ease-out forwards; /* Initial Fade-in */
-            opacity: 0; /* Start invisible */
+            animation: fadeIn 2s ease-out forwards;
+            opacity: 0;
         }
 
         @keyframes fadeIn {
@@ -78,7 +78,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Glitch/Flicker Effect (Slightly more "flashy") */
+        /* Glitch/Flicker Effect */
         .hero-text::after {
             content: attr(data-text);
             position: absolute;
@@ -90,35 +90,20 @@
                 0 0 10px var(--accent-color);
             opacity: 0.5;
             transform: translateX(1px) translateY(1px);
-            clip-path: inset(0 100% 0 0); /* Start clipped */
-            animation: glitch-flicker 6s infinite alternate; /* Slower flicker */
+            clip-path: inset(0 100% 0 0);
+            animation: glitch-flicker 6s infinite alternate;
         }
 
         @keyframes glitch-flicker {
-            0%, 100% {
-                clip-path: inset(0 100% 0 0);
-            }
-            1% {
-                clip-path: inset(30% 0 30% 0); /* Full width, clipped top/bottom */
-                transform: translateX(-2px) translateY(2px);
-            }
-            3% {
-                clip-path: inset(50% 0 0 0); /* Half clipped bottom */
-                transform: translateX(2px) translateY(-2px);
-            }
-            5% {
-                clip-path: inset(0 0 0 100%); /* Full clip right */
-            }
-            6% {
-                clip-path: inset(0 0 0 0); /* Fully visible */
-                transform: translateX(0) translateY(0);
-            }
-            8% {
-                clip-path: inset(0 100% 0 0); /* Full clip left (and repeats) */
-            }
+            0%, 100% { clip-path: inset(0 100% 0 0); }
+            1% { clip-path: inset(30% 0 30% 0); transform: translateX(-2px) translateY(2px); }
+            3% { clip-path: inset(50% 0 0 0); transform: translateX(2px) translateY(-2px); }
+            5% { clip-path: inset(0 0 0 100%); }
+            6% { clip-path: inset(0 0 0 0); transform: translateX(0) translateY(0); }
+            8% { clip-path: inset(0 100% 0 0); }
         }
         
-        /* Background Dot/Grid Effect (Minimal detail) */
+        /* Background Dot/Grid Effect */
         .background-dots {
             position: fixed;
             top: 0;
@@ -128,16 +113,71 @@
             z-index: -2;
             background-image: radial-gradient(var(--text-color) 0.5px, transparent 1.5px);
             background-size: 20px 20px;
-            opacity: 0.05; /* Very subtle */
+            opacity: 0.05;
             animation: panBackground 60s linear infinite;
         }
 
         @keyframes panBackground {
-            from {
-                background-position: 0 0;
+            from { background-position: 0 0; }
+            to { background-position: 2000px 2000px; }
+        }
+
+
+        /*
+        * 4. ABYSS BUTTON STYLING
+        */
+        .abyss-button {
+            /* Base styles */
+            background: transparent;
+            border: 2px solid var(--text-color);
+            color: var(--text-color);
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            letter-spacing: 0.15rem;
+            text-transform: uppercase;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            
+            /* Initial subtle glow and smooth transition */
+            box-shadow: 0 0 5px rgba(0, 255, 200, 0.5);
+            transition: all 0.3s ease-in-out; 
+            
+            /* Ensure the button fades in after the text */
+            opacity: 0;
+            animation: buttonFadeIn 0.8s ease-out 2s forwards;
+            outline: none;
+        }
+
+        @keyframes buttonFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Button Hover/Focus Effect: Invert colors and intensify glow */
+        .abyss-button:hover,
+        .abyss-button:focus {
+            color: var(--background-color);
+            background-color: var(--text-color); /* Flashy color inversion */
+            box-shadow: 
+                0 0 15px var(--text-color), 
+                0 0 30px var(--text-color), 
+                0 0 60px rgba(0, 255, 200, 0.9); /* Intense, inviting glow */
+            transform: scale(1.05); /* Slight scale up */
+        }
+
+        .abyss-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Responsive adjustment for small screens */
+        @media (max-width: 600px) {
+            .abyss-button {
+                padding: 0.8rem 2rem;
+                font-size: 1rem;
             }
-            to {
-                background-position: 2000px 2000px; /* Move the background slowly */
+            .content-wrapper {
+                gap: 25px;
             }
         }
 
@@ -147,9 +187,16 @@
     <div class="background-dots"></div>
     
     <div class="container">
-        <h1 class="hero-text" data-text="The Future is almost here">
-            The Future is almost here
-        </h1>
+        <div class="content-wrapper">
+            <!-- The data-text attribute is used for the glitch effect in CSS -->
+            <h1 class="hero-text" data-text="The Future is almost here">
+                The Future is almost here
+            </h1>
+            
+            <button class="abyss-button">
+                ENTER THE ABYSS?
+            </button>
+        </div>
     </div>
 
     <script>
@@ -190,8 +237,9 @@
             }, delay);
         }
 
-        // Start the effect once the initial CSS fade-in is complete
+        // Start the effect once the initial CSS fade-in is complete (2000ms)
         setTimeout(scheduleDistortion, 2000); 
     </script>
 </body>
 </html>
+
