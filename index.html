@@ -7,3 +7,191 @@
 <h1>Signal Received. Standby for assets.</h1>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Future</title>
+    <style>
+        /*
+        * 1. RESET AND SETUP
+        */
+        :root {
+            /* Define a dark theme color scheme */
+            --background-color: #0d0d0d;
+            --text-color: #00ffc8; /* Neon/Electric Teal */
+            --accent-color: #00aaff; /* Subtle Blue for flicker */
+            --font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            overflow: hidden; /* Prevent scrollbars from appearing */
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: var(--font-family);
+        }
+
+        /*
+        * 2. LAYOUT AND TYPOGRAPHY
+        */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+        }
+
+        .hero-text {
+            font-size: clamp(2rem, 8vw, 6rem); /* Responsive font size */
+            font-weight: 200; /* Light font weight for a sleek look */
+            letter-spacing: 0.5rem;
+            text-transform: uppercase;
+            position: relative; /* Needed for the pseudo-element glow */
+            cursor: default;
+        }
+
+        /*
+        * 3. SLEEK ANIMATIONS
+        */
+
+        /* Subtle Glow Effect on the text */
+        .hero-text {
+            text-shadow: 
+                0 0 5px var(--text-color),
+                0 0 10px var(--text-color),
+                0 0 20px rgba(0, 255, 200, 0.4);
+            animation: fadeIn 2s ease-out forwards; /* Initial Fade-in */
+            opacity: 0; /* Start invisible */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Glitch/Flicker Effect (Slightly more "flashy") */
+        .hero-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            color: var(--accent-color);
+            text-shadow: 
+                0 0 10px var(--accent-color);
+            opacity: 0.5;
+            transform: translateX(1px) translateY(1px);
+            clip-path: inset(0 100% 0 0); /* Start clipped */
+            animation: glitch-flicker 6s infinite alternate; /* Slower flicker */
+        }
+
+        @keyframes glitch-flicker {
+            0%, 100% {
+                clip-path: inset(0 100% 0 0);
+            }
+            1% {
+                clip-path: inset(30% 0 30% 0); /* Full width, clipped top/bottom */
+                transform: translateX(-2px) translateY(2px);
+            }
+            3% {
+                clip-path: inset(50% 0 0 0); /* Half clipped bottom */
+                transform: translateX(2px) translateY(-2px);
+            }
+            5% {
+                clip-path: inset(0 0 0 100%); /* Full clip right */
+            }
+            6% {
+                clip-path: inset(0 0 0 0); /* Fully visible */
+                transform: translateX(0) translateY(0);
+            }
+            8% {
+                clip-path: inset(0 100% 0 0); /* Full clip left (and repeats) */
+            }
+        }
+        
+        /* Background Dot/Grid Effect (Minimal detail) */
+        .background-dots {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background-image: radial-gradient(var(--text-color) 0.5px, transparent 1.5px);
+            background-size: 20px 20px;
+            opacity: 0.05; /* Very subtle */
+            animation: panBackground 60s linear infinite;
+        }
+
+        @keyframes panBackground {
+            from {
+                background-position: 0 0;
+            }
+            to {
+                background-position: 2000px 2000px; /* Move the background slowly */
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="background-dots"></div>
+    
+    <div class="container">
+        <h1 class="hero-text" data-text="The Future is almost here">
+            The Future is almost here
+        </h1>
+    </div>
+
+    <script>
+        // Minimal JavaScript for a very subtle, random text distortion effect
+        const textElement = document.querySelector('.hero-text');
+        const originalText = textElement.textContent;
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
+
+        function distortText() {
+            let newText = '';
+            for (let i = 0; i < originalText.length; i++) {
+                if (Math.random() < 0.02) { // 2% chance to change a character
+                    newText += chars[Math.floor(Math.random() * chars.length)];
+                } else {
+                    newText += originalText[i];
+                }
+            }
+            textElement.textContent = newText;
+        }
+
+        function resetText() {
+            textElement.textContent = originalText;
+        }
+
+        // Randomly trigger a brief distortion every 5 to 15 seconds
+        function scheduleDistortion() {
+            const delay = Math.random() * 10000 + 5000; // 5s to 15s
+            setTimeout(() => {
+                const duration = 150; // Distortion lasts 150ms
+                const interval = setInterval(distortText, 50); // Change char every 50ms
+
+                setTimeout(() => {
+                    clearInterval(interval);
+                    resetText();
+                    scheduleDistortion(); // Schedule the next one
+                }, duration);
+
+            }, delay);
+        }
+
+        // Start the effect once the initial CSS fade-in is complete
+        setTimeout(scheduleDistortion, 2000); 
+    </script>
+</body>
+</html>
