@@ -5,15 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Future</title>
     <style>
+    </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Future is almost here..</title>
+    <style>
         /*
         * 1. RESET AND SETUP
         */
         :root {
-            /* Define a dark theme color scheme */
             --background-color: #0d0d0d;
             --text-color: #00ffc8; /* Neon/Electric Teal */
             --accent-color: #00aaff; /* Subtle Blue for flicker */
             --font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+            --card-hover-color: rgba(0, 255, 200, 0.5);
+            --pacman-color: #ffcc00; /* Yellow */
+            --wall-color: #00aaff; /* Blue Walls */
+            --dot-color: #ffffff;
         }
 
         * {
@@ -24,51 +35,50 @@
 
         body, html {
             height: 100%;
-            overflow: hidden; /* Prevent scrollbars from appearing */
+            overflow: hidden; 
             background-color: var(--background-color);
             color: var(--text-color);
             font-family: var(--font-family);
-            /* Ensure the smooth animation starts immediately */
-            transition: background-color 0.5s ease;
+            transition: background-color 1s ease-in;
         }
 
-        /*
-        * 2. LAYOUT AND TYPOGRAPHY
-        */
-        .container {
+        /* The main application wrapper, centers all content */
+        .app-wrapper {
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100%;
+            width: 100%;
             text-align: center;
+            position: relative;
         }
 
+        /* Class applied to views that should be hidden, controlled by JS */
+        .hidden-view {
+            display: none !important;
+        }
+
+        /*
+        * 2. INTRO SCREEN STYLING (The Future is almost here)
+        */
         .content-wrapper {
             display: flex;
-            flex-direction: column; /* Stack H1 and button vertically */
+            flex-direction: column; 
             align-items: center;
-            gap: 40px; /* Spacing between text and button */
+            gap: 40px; 
+            transition: opacity 1s ease-in; 
+            z-index: 10;
         }
 
         .hero-text {
-            font-size: clamp(2rem, 8vw, 6rem); /* Responsive font size */
-            font-weight: 200; /* Light font weight for a sleek look */
+            font-size: clamp(2rem, 8vw, 6rem); 
+            font-weight: 200; 
             letter-spacing: 0.5rem;
             text-transform: uppercase;
             position: relative;
             cursor: default;
-        }
-
-        /*
-        * 3. SLEEK TEXT ANIMATIONS (EXISTING)
-        */
-
-        /* Subtle Glow Effect on the text */
-        .hero-text {
             text-shadow: 
-                0 0 5px var(--text-color),
-                0 0 10px var(--text-color),
-                0 0 20px rgba(0, 255, 200, 0.4);
+                0 0 5px var(--text-color), 0 0 10px var(--text-color), 0 0 20px rgba(0, 255, 200, 0.4);
             animation: fadeIn 2s ease-out forwards;
             opacity: 0;
         }
@@ -76,31 +86,6 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Glitch/Flicker Effect */
-        .hero-text::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: -1;
-            color: var(--accent-color);
-            text-shadow: 
-                0 0 10px var(--accent-color);
-            opacity: 0.5;
-            transform: translateX(1px) translateY(1px);
-            clip-path: inset(0 100% 0 0);
-            animation: glitch-flicker 6s infinite alternate;
-        }
-
-        @keyframes glitch-flicker {
-            0%, 100% { clip-path: inset(0 100% 0 0); }
-            1% { clip-path: inset(30% 0 30% 0); transform: translateX(-2px) translateY(2px); }
-            3% { clip-path: inset(50% 0 0 0); transform: translateX(2px) translateY(-2px); }
-            5% { clip-path: inset(0 0 0 100%); }
-            6% { clip-path: inset(0 0 0 0); transform: translateX(0) translateY(0); }
-            8% { clip-path: inset(0 100% 0 0); }
         }
         
         /* Background Dot/Grid Effect */
@@ -115,6 +100,7 @@
             background-size: 20px 20px;
             opacity: 0.05;
             animation: panBackground 60s linear infinite;
+            transition: opacity 1s ease-in; 
         }
 
         @keyframes panBackground {
@@ -123,11 +109,8 @@
         }
 
 
-        /*
-        * 4. ABYSS BUTTON STYLING
-        */
-        .abyss-button {
-            /* Base styles */
+        /* BUTTON STYLING */
+        .abyss-button, .back-button {
             background: transparent;
             border: 2px solid var(--text-color);
             color: var(--text-color);
@@ -138,15 +121,15 @@
             font-weight: 500;
             cursor: pointer;
             border-radius: 8px;
-            
-            /* Initial subtle glow and smooth transition */
             box-shadow: 0 0 5px rgba(0, 255, 200, 0.5);
             transition: all 0.3s ease-in-out; 
-            
-            /* Ensure the button fades in after the text */
-            opacity: 0;
-            animation: buttonFadeIn 0.8s ease-out 2s forwards;
             outline: none;
+            z-index: 20;
+        }
+
+        .abyss-button {
+             opacity: 0;
+             animation: buttonFadeIn 0.8s ease-out 2s forwards;
         }
 
         @keyframes buttonFadeIn {
@@ -154,61 +137,272 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Button Hover/Focus Effect: Invert colors and intensify glow */
-        .abyss-button:hover,
-        .abyss-button:focus {
+        .abyss-button:hover, .abyss-button:focus,
+        .back-button:hover, .back-button:focus {
             color: var(--background-color);
-            background-color: var(--text-color); /* Flashy color inversion */
+            background-color: var(--text-color); 
             box-shadow: 
                 0 0 15px var(--text-color), 
                 0 0 30px var(--text-color), 
-                0 0 60px rgba(0, 255, 200, 0.9); /* Intense, inviting glow */
-            transform: scale(1.05); /* Slight scale up */
+                0 0 60px rgba(0, 255, 200, 0.9); 
+            transform: scale(1.05); 
+        }
+        
+        /*
+        * 3. HOMEPAGE STYLING (3 Blank Spaces)
+        */
+        .homepage-wrapper {
+            display: flex; 
+            flex-direction: column;
+            width: 90%;
+            max-width: 1200px;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+            padding: 20px;
+            position: absolute; 
         }
 
-        .abyss-button:active {
-            transform: scale(0.98);
+        .homepage-title {
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            font-weight: 300;
+            margin-bottom: 50px;
+            letter-spacing: 0.3rem;
+            color: var(--accent-color);
+            text-shadow: 0 0 5px var(--accent-color);
         }
 
-        /* Responsive adjustment for small screens */
-        @media (max-width: 600px) {
-            .abyss-button {
-                padding: 0.8rem 2rem;
-                font-size: 1rem;
-            }
-            .content-wrapper {
-                gap: 25px;
-            }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            width: 100%;
         }
 
+        .blank-space-card {
+            background-color: rgba(0, 255, 200, 0.05); 
+            border: 1px solid var(--text-color);
+            border-radius: 12px;
+            min-height: 250px; 
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 10px rgba(0, 255, 200, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .blank-space-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 30px var(--card-hover-color);
+            color: var(--text-color); 
+        }
+        
+        /*
+        * 4. GAME VIEW STYLING (Shared)
+        */
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+            padding: 20px;
+            position: absolute;
+            width: 100%;
+        }
+        
+        /* Dino Canvas Styling */
+        #dinoCanvas {
+            border: 2px solid var(--text-color);
+            border-radius: 8px;
+            background-color: #000;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 200, 0.5);
+            max-width: 95%; 
+            height: auto;
+        }
+        
+        /* Pac-Man Canvas Styling */
+        #pacManCanvas {
+            border: 2px solid var(--wall-color);
+            border-radius: 8px;
+            background-color: #000;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px var(--wall-color);
+            max-width: 95%; 
+            height: auto;
+            touch-action: none;
+        }
+        
+        /* Space Invaders Canvas Styling */
+         #spaceInvadersCanvas {
+            border: 2px solid #ff00ff; /* Magenta neon */
+            border-radius: 8px;
+            background-color: #00001a; /* Very dark blue */
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px #ff00ff;
+            max-width: 95%; 
+            height: auto;
+            touch-action: none;
+        }
+        
+        .game-controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Message box for Game Over/Win */
+        .message-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--text-color);
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px var(--text-color);
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            color: white;
+            text-shadow: 0 0 5px var(--text-color);
+            text-align: center;
+        }
+        .message-box.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .message-box h3 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #ff00ff; /* Use SI color for titles */
+        }
+        .message-box p {
+            font-size: 1.2rem;
+            color: #ccc;
+        }
     </style>
 </head>
 <body>
     <div class="background-dots"></div>
     
-    <div class="container">
-        <div class="content-wrapper">
-            <!-- The data-text attribute is used for the glitch effect in CSS -->
-            <h1 class="hero-text" data-text="The Future is almost here">
+    <div class="app-wrapper">
+        <!-- VIEW 1: INTRO SCREEN -->
+        <div class="content-wrapper" id="introWrapper">
+            <h1 class="hero-text" data-text="The Future is almost here" id="heroText">
                 The Future is almost here
             </h1>
-            
-            <button class="abyss-button">
+            <button class="abyss-button" id="abyssButton">
                 ENTER THE ABYSS?
             </button>
+        </div>
+
+        <!-- VIEW 2: HOMEPAGE -->
+        <div class="homepage-wrapper hidden-view" id="homepageWrapper">
+            <h2 class="homepage-title">Three Domains Accessed</h2>
+            <div class="card-grid" id="cardGrid">
+                <div class="blank-space-card" data-domain="dino">
+                    Domain One: **Dino-Game**
+                </div>
+                <div class="blank-space-card" data-domain="pacman">
+                    Domain Two: **Pac-Game**
+                </div>
+                <div class="blank-space-card" data-domain="spaceinvaders">
+                    Domain Three: **Space-Invaders**
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: DINO GAME -->
+        <div class="game-wrapper hidden-view" id="dinoGameWrapper">
+            <canvas id="dinoCanvas" width="600" height="150"></canvas>
+            <button class="back-button" onclick="changeView('homepage')">
+                Return to Domains
+            </button>
+        </div>
+        
+        <!-- VIEW 4: PAC-MAN GAME -->
+        <div class="game-wrapper hidden-view" id="pacManGameWrapper">
+            <canvas id="pacManCanvas" width="300" height="300"></canvas>
+            <div class="game-controls">
+                 <button class="back-button" onclick="changeView('homepage')">
+                    Return to Domains
+                </button>
+            </div>
+        </div>
+        
+        <!-- VIEW 5: SPACE INVADERS GAME -->
+        <div class="game-wrapper hidden-view" id="spaceInvadersGameWrapper">
+            <canvas id="spaceInvadersCanvas" width="400" height="500"></canvas>
+            <div class="game-controls">
+                 <button class="back-button" onclick="changeView('homepage')">
+                    Return to Domains
+                </button>
+            </div>
+        </div>
+        
+        <!-- MESSAGE BOX (Used by all games) -->
+        <div id="messageBox" class="message-box">
+            <h3 id="messageTitle"></h3>
+            <p id="messageText"></p>
         </div>
     </div>
 
     <script>
-        // Minimal JavaScript for a very subtle, random text distortion effect
-        const textElement = document.querySelector('.hero-text');
+        // === DOM ELEMENTS & STATE ===
+        const introWrapper = document.getElementById('introWrapper');
+        const homepageWrapper = document.getElementById('homepageWrapper');
+        const dinoGameWrapper = document.getElementById('dinoGameWrapper');
+        const pacManGameWrapper = document.getElementById('pacManGameWrapper');
+        const spaceInvadersGameWrapper = document.getElementById('spaceInvadersGameWrapper');
+        const abyssButton = document.getElementById('abyssButton');
+        const cardGrid = document.getElementById('cardGrid');
+        const messageBox = document.getElementById('messageBox');
+        const messageTitle = document.getElementById('messageTitle');
+        const messageText = document.getElementById('messageText');
+        
+        const views = {
+            'intro': introWrapper,
+            'homepage': homepageWrapper,
+            'dino': dinoGameWrapper, 
+            'pacman': pacManGameWrapper,
+            'spaceinvaders': spaceInvadersGameWrapper, // New view
+        };
+        let currentView = 'intro';
+        let distortionTimeout; 
+
+        // --- GLOBAL UTILITY ---
+        function varColor(name) {
+            return getComputedStyle(document.documentElement).getPropertyValue(`--${name}`).trim();
+        }
+        
+        function showMessage(title, text) {
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+            messageBox.classList.add('visible');
+        }
+
+        function hideMessage() {
+            messageBox.classList.remove('visible');
+        }
+
+
+        // --- GLITCH EFFECT (Intro Screen) ---
+        const textElement = document.getElementById('heroText');
         const originalText = textElement.textContent;
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()';
 
         function distortText() {
             let newText = '';
             for (let i = 0; i < originalText.length; i++) {
-                if (Math.random() < 0.02) { // 2% chance to change a character
+                if (Math.random() < 0.02) { 
                     newText += chars[Math.floor(Math.random() * chars.length)];
                 } else {
                     newText += originalText[i];
@@ -221,24 +415,862 @@
             textElement.textContent = originalText;
         }
 
-        // Randomly trigger a brief distortion every 5 to 15 seconds
         function scheduleDistortion() {
-            const delay = Math.random() * 10000 + 5000; // 5s to 15s
-            setTimeout(() => {
-                const duration = 150; // Distortion lasts 150ms
-                const interval = setInterval(distortText, 50); // Change char every 50ms
+            const delay = Math.random() * 10000 + 5000;
+            
+            distortionTimeout = setTimeout(() => {
+                const duration = 150; 
+                const interval = setInterval(distortText, 50); 
 
                 setTimeout(() => {
                     clearInterval(interval);
                     resetText();
-                    scheduleDistortion(); // Schedule the next one
+                    if (currentView === 'intro') {
+                         scheduleDistortion(); 
+                    }
                 }, duration);
 
             }, delay);
         }
+        
+        // --- DINO GAME VARIABLES ---
+        const dinoCanvas = document.getElementById('dinoCanvas');
+        const dinoCtx = dinoCanvas.getContext('2d');
+        const DINO_WIDTH = 20;
+        const DINO_HEIGHT = 40;
+        const INITIAL_GROUND_Y = dinoCanvas.height - 10;
+        let dino = { x: 50, y: INITIAL_GROUND_Y - DINO_HEIGHT, vy: 0, gravity: 0.8, isJumping: false };
+        let obstacles = [];
+        let dinoGameLoop;
+        let gameSpeed = 5;
+        let score = 0;
+        let isDinoRunning = false;
+        
+        // --- DINO GAME LOGIC ---
 
-        // Start the effect once the initial CSS fade-in is complete (2000ms)
-        setTimeout(scheduleDistortion, 2000); 
+        function drawDino(currentGroundY) {
+            dinoCtx.fillStyle = varColor('text-color');
+            dinoCtx.fillRect(dino.x, dino.y, DINO_WIDTH, DINO_HEIGHT);
+        }
+
+        function drawDinoObstacles(currentGroundY) {
+            dinoCtx.fillStyle = '#ff0066';
+            obstacles.forEach(obs => {
+                dinoCtx.fillRect(obs.x, currentGroundY - obs.height, obs.width, obs.height);
+            });
+        }
+        
+        function updateDino(currentGroundY) {
+            if (dino.isJumping) {
+                dino.y += dino.vy;
+                dino.vy += dino.gravity;
+
+                if (dino.y >= currentGroundY - DINO_HEIGHT) {
+                    dino.y = currentGroundY - DINO_HEIGHT;
+                    dino.isJumping = false;
+                    dino.vy = 0;
+                }
+            }
+        }
+
+        function updateDinoObstacles(currentGroundY) {
+            obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
+            obstacles.forEach(obs => obs.x -= gameSpeed);
+
+            if (Math.random() < 0.015 && dino.y === currentGroundY - DINO_HEIGHT && obstacles.length < 2) { 
+                obstacles.push({
+                    x: dinoCanvas.width,
+                    width: Math.random() * 10 + 10,
+                    height: Math.random() * 20 + 20
+                });
+            }
+        }
+
+        function checkDinoCollision(currentGroundY) {
+            for (const obs of obstacles) {
+                const collisionX = dino.x < obs.x + obs.width && dino.x + DINO_WIDTH > obs.x;
+                const collisionY = dino.y + DINO_HEIGHT > currentGroundY - obs.height;
+
+                if (collisionX && collisionY) {
+                    stopDinoGame(true);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function dinoJump(e) {
+            if (isDinoRunning && ((e.type === 'keydown' && e.code === 'Space') || e.type === 'touchstart')) {
+                if (e.type === 'keydown') e.preventDefault(); 
+                if (!dino.isJumping) {
+                    dino.isJumping = true;
+                    dino.vy = -12;
+                }
+            }
+        }
+
+        function drawDinoScore() {
+            dinoCtx.fillStyle = varColor('text-color');
+            dinoCtx.font = '20px ' + varColor('font-family');
+            dinoCtx.textAlign = 'left';
+            dinoCtx.fillText('SCORE: ' + Math.floor(score), 10, 30);
+        }
+
+        function dinoGameLoopFn() {
+            if (!isDinoRunning) return;
+
+            // Dynamic canvas resizing
+            const wrapperWidth = dinoGameWrapper.clientWidth;
+            dinoCanvas.width = Math.min(600, wrapperWidth * 0.95);
+            const currentGroundY = dinoCanvas.height - 10;
+            
+            dinoCtx.clearRect(0, 0, dinoCanvas.width, dinoCanvas.height);
+            
+            // Draw ground line
+            dinoCtx.strokeStyle = varColor('text-color');
+            dinoCtx.lineWidth = 2;
+            dinoCtx.beginPath();
+            dinoCtx.moveTo(0, currentGroundY);
+            dinoCtx.lineTo(dinoCanvas.width, currentGroundY);
+            dinoCtx.stroke();
+            
+            if (dino.y > currentGroundY - DINO_HEIGHT) {
+                dino.y = currentGroundY - DINO_HEIGHT;
+                dino.isJumping = false;
+                dino.vy = 0;
+            }
+
+            updateDino(currentGroundY);
+            updateDinoObstacles(currentGroundY);
+            drawDino(currentGroundY);
+            drawDinoObstacles(currentGroundY);
+            
+            if (checkDinoCollision(currentGroundY)) return;
+
+            score += 0.1;
+            gameSpeed += 0.0005;
+            drawDinoScore();
+
+            dinoGameLoop = requestAnimationFrame(dinoGameLoopFn);
+        }
+
+        function startDinoGame() {
+            isDinoRunning = true;
+            hideMessage();
+            dino = { x: 50, y: INITIAL_GROUND_Y - DINO_HEIGHT, vy: 0, gravity: 0.8, isJumping: false };
+            obstacles = [];
+            score = 0;
+            gameSpeed = 5;
+            
+            window.addEventListener('keydown', dinoJump);
+            dinoCanvas.addEventListener('touchstart', dinoJump);
+            
+            dinoGameLoopFn();
+        }
+
+        function stopDinoGame(collided = false) {
+            isDinoRunning = false;
+            cancelAnimationFrame(dinoGameLoop);
+            
+            if (collided) {
+                showMessage('GAME OVER', 'Final Score: ' + Math.floor(score) + '. Press SPACE or tap to try again.');
+                
+                // Add listener back to restart game on spacebar/tap
+                const restartHandler = (e) => {
+                    if ((e.type === 'keydown' && e.code === 'Space') || e.type === 'touchstart') {
+                        if (e.type === 'keydown') e.preventDefault(); 
+                        window.removeEventListener('keydown', restartHandler);
+                        dinoCanvas.removeEventListener('touchstart', restartHandler);
+                        startDinoGame();
+                    }
+                };
+                window.addEventListener('keydown', restartHandler);
+                dinoCanvas.addEventListener('touchstart', restartHandler);
+            }
+        }
+        
+        // --- PAC-MAN GAME VARIABLES ---
+        const pacManCanvas = document.getElementById('pacManCanvas');
+        const pacManCtx = pacManCanvas.getContext('2d');
+        const GRID_SIZE = 15;
+        let CELL_SIZE = pacManCanvas.width / GRID_SIZE; // Will be updated dynamically
+        let pacManScore = 0;
+        let pacManLoop;
+        let isPacManRunning = false;
+        
+        const PAC_MAP = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,2,2,2,2,2,2,1,2,2,2,2,2,2,1],
+            [1,2,1,1,2,1,2,1,2,1,2,1,1,2,1],
+            [1,2,1,2,2,1,2,2,2,1,2,2,1,2,1],
+            [1,2,2,2,1,1,1,1,1,1,1,2,2,2,1],
+            [1,2,1,2,2,2,2,2,2,2,2,2,1,2,1],
+            [1,2,1,2,1,1,1,2,1,1,1,2,1,2,1],
+            [1,0,2,2,2,2,2,0,2,2,2,2,2,0,1],
+            [1,2,1,2,1,1,1,2,1,1,1,2,1,2,1],
+            [1,2,1,2,2,2,2,2,2,2,2,2,1,2,1],
+            [1,2,2,2,1,1,1,1,1,1,1,2,2,2,1],
+            [1,2,1,2,2,1,2,2,2,1,2,2,1,2,1],
+            [1,2,1,1,2,1,2,1,2,1,2,1,1,2,1],
+            [1,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+        
+        let mapData;
+        
+        let pacMan = {
+            x: 7,
+            y: 7,
+            dir: { x: 1, y: 0 },
+            nextDir: { x: 1, y: 0 },
+            speed: 0.1,
+            pos: { x: 7 * CELL_SIZE, y: 7 * CELL_SIZE },
+            mouthOpen: 0,
+        };
+        
+        function resetPacManGame() {
+            mapData = PAC_MAP.map(row => [...row]);
+            
+            pacMan.x = 7;
+            pacMan.y = 7;
+            pacMan.dir = { x: 1, y: 0 };
+            pacMan.nextDir = { x: 1, y: 0 };
+            pacMan.pos = { x: pacMan.x * CELL_SIZE + CELL_SIZE / 2, y: pacMan.y * CELL_SIZE + CELL_SIZE / 2 };
+            pacManScore = 0;
+        }
+
+        function drawPacManGrid() {
+            pacManCtx.fillStyle = '#000';
+            pacManCtx.fillRect(0, 0, pacManCanvas.width, pacManCanvas.height);
+
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    const x = c * CELL_SIZE;
+                    const y = r * CELL_SIZE;
+
+                    if (mapData[r][c] === 1) { // Wall
+                        pacManCtx.fillStyle = varColor('wall-color');
+                        pacManCtx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+                    } else if (mapData[r][c] === 2) { // Dot
+                        pacManCtx.fillStyle = varColor('dot-color');
+                        pacManCtx.beginPath();
+                        pacManCtx.arc(x + CELL_SIZE / 2, y + CELL_SIZE / 2, CELL_SIZE / 8, 0, Math.PI * 2);
+                        pacManCtx.fill();
+                    }
+                }
+            }
+        }
+        
+        function drawPacMan() {
+            const centerX = pacMan.pos.x;
+            const centerY = pacMan.pos.y;
+            const radius = CELL_SIZE * 0.4;
+
+            pacMan.mouthOpen = Math.sin(Date.now() / 150) * 0.15 + 0.15;
+            
+            let rotation = 0;
+            
+            if (pacMan.dir.x === 1) rotation = 0;
+            else if (pacMan.dir.x === -1) rotation = Math.PI;
+            else if (pacMan.dir.y === 1) rotation = Math.PI / 2;
+            else if (pacMan.dir.y === -1) rotation = -Math.PI / 2;
+
+            const angleStart = rotation + pacMan.mouthOpen;
+            const angleEnd = rotation - pacMan.mouthOpen;
+
+            pacManCtx.fillStyle = varColor('pacman-color');
+            pacManCtx.beginPath();
+            pacManCtx.arc(centerX, centerY, radius, angleStart, angleEnd, true);
+            pacManCtx.lineTo(centerX, centerY);
+            pacManCtx.fill();
+        }
+
+        function isWall(x, y) {
+            if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) return true;
+            return mapData[y][x] === 1;
+        }
+
+        function updatePacMan() {
+            const cellCenter = CELL_SIZE / 2;
+            const currentX = Math.floor(pacMan.pos.x / CELL_SIZE);
+            const currentY = Math.floor(pacMan.pos.y / CELL_SIZE);
+            
+            const nextX = currentX + pacMan.nextDir.x;
+            const nextY = currentY + pacMan.nextDir.y;
+            
+            if (pacMan.nextDir.x !== 0 || pacMan.nextDir.y !== 0) {
+                 // Check if Pac-Man is close to the center of the current cell (ready for turn)
+                 const distToCenter = Math.sqrt(
+                     Math.pow(pacMan.pos.x - (currentX * CELL_SIZE + cellCenter), 2) + 
+                     Math.pow(pacMan.pos.y - (currentY * CELL_SIZE + cellCenter), 2)
+                 );
+
+                 if (!isWall(nextX, nextY) && distToCenter < CELL_SIZE / 4) {
+                    // Snap to center and change direction
+                    pacMan.pos.x = currentX * CELL_SIZE + cellCenter;
+                    pacMan.pos.y = currentY * CELL_SIZE + cellCenter;
+                    
+                    pacMan.dir = pacMan.nextDir;
+                    pacMan.nextDir = { x: 0, y: 0 };
+                 }
+            }
+            
+            const newPosX = pacMan.pos.x + pacMan.dir.x * pacMan.speed * CELL_SIZE;
+            const newPosY = pacMan.pos.y + pacMan.dir.y * pacMan.speed * CELL_SIZE;
+            
+            const targetX = Math.floor(newPosX / CELL_SIZE);
+            const targetY = Math.floor(newPosY / CELL_SIZE);
+            
+            if (!isWall(targetX, targetY) || (pacMan.dir.x === 0 && pacMan.dir.y === 0)) {
+                // Allow movement or no movement
+                pacMan.pos.x = newPosX;
+                pacMan.pos.y = newPosY;
+
+                pacMan.x = Math.floor(pacMan.pos.x / CELL_SIZE);
+                pacMan.y = Math.floor(pacMan.pos.y / CELL_SIZE);
+                
+                if (mapData[pacMan.y][pacMan.x] === 2) {
+                    mapData[pacMan.y][pacMan.x] = 0;
+                    pacManScore += 10;
+                    checkWinCondition();
+                }
+            } else {
+                 // Stop moving if hit a wall
+                 pacMan.dir = { x: 0, y: 0 };
+            }
+
+            // Simple boundary wrapping for open ends (r, 0, c, 7 and r, 14, c, 7)
+            if (pacMan.x < 0) pacMan.pos.x = GRID_SIZE * CELL_SIZE;
+            if (pacMan.x >= GRID_SIZE) pacMan.pos.x = 0;
+        }
+        
+        function checkWinCondition() {
+            let dotsRemaining = 0;
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    if (mapData[r][c] === 2) {
+                        dotsRemaining++;
+                    }
+                }
+            }
+            if (dotsRemaining === 0) {
+                stopPacManGame(true);
+            }
+        }
+        
+        function drawPacManScore() {
+             pacManCtx.fillStyle = varColor('dot-color');
+             pacManCtx.font = '16px ' + varColor('font-family');
+             pacManCtx.textAlign = 'right';
+             pacManCtx.fillText('SCORE: ' + pacManScore, pacManCanvas.width - 10, 20);
+        }
+
+        function pacManGameLoopFn() {
+            if (!isPacManRunning) return;
+
+            // Recalculate cell size if canvas size changes (responsive)
+            const wrapperSize = Math.min(pacManGameWrapper.clientWidth, window.innerHeight * 0.9);
+            pacManCanvas.width = Math.min(300, wrapperSize * 0.9);
+            pacManCanvas.height = pacManCanvas.width;
+            const newCellSize = pacManCanvas.width / GRID_SIZE;
+
+            if (CELL_SIZE === 0 || newCellSize !== CELL_SIZE) {
+                // Adjust position based on new scale
+                pacMan.pos.x = (pacMan.pos.x / (CELL_SIZE || newCellSize)) * newCellSize;
+                pacMan.pos.y = (pacMan.pos.y / (CELL_SIZE || newCellSize)) * newCellSize;
+                CELL_SIZE = newCellSize; 
+            }
+            
+            updatePacMan();
+            drawPacManGrid();
+            drawPacMan();
+            drawPacManScore();
+
+            pacManLoop = requestAnimationFrame(pacManGameLoopFn);
+        }
+        
+        function pacManKeyDown(e) {
+            if (!isPacManRunning) return;
+            
+            e.preventDefault(); 
+
+            let nextX = 0, nextY = 0;
+            
+            switch (e.code) {
+                case 'ArrowUp':
+                case 'KeyW':
+                    nextY = -1;
+                    break;
+                case 'ArrowDown':
+                case 'KeyS':
+                    nextY = 1;
+                    break;
+                case 'ArrowLeft':
+                case 'KeyA':
+                    nextX = -1;
+                    break;
+                case 'ArrowRight':
+                case 'KeyD':
+                    nextX = 1;
+                    break;
+            }
+            
+            if (nextX !== 0 || nextY !== 0) {
+                pacMan.nextDir = { x: nextX, y: nextY };
+            }
+        }
+        
+        // Touch/Swipe Logic for Mobile
+        let touchstartX = 0;
+        let touchstartY = 0;
+
+        function pacManTouchStart(e) {
+            touchstartX = e.changedTouches[0].screenX;
+            touchstartY = e.changedTouches[0].screenY;
+            e.preventDefault(); 
+        }
+
+        function pacManTouchEnd(e) {
+            const touchendX = e.changedTouches[0].screenX;
+            const touchendY = e.changedTouches[0].screenY;
+
+            const diffX = touchendX - touchstartX;
+            const diffY = touchendY - touchstartY;
+
+            let nextX = 0, nextY = 0;
+
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 10) {
+                // Horizontal swipe (threshold 10 pixels)
+                if (diffX > 0) { nextX = 1; } // Right
+                else { nextX = -1; } // Left
+            } else if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 10) {
+                // Vertical swipe
+                if (diffY > 0) { nextY = 1; } // Down
+                else { nextY = -1; } // Up
+            }
+            
+            if (nextX !== 0 || nextY !== 0) {
+                pacMan.nextDir = { x: nextX, y: nextY };
+            }
+            e.preventDefault(); 
+        }
+
+        function startPacManGame() {
+            isPacManRunning = true;
+            hideMessage();
+            
+            // Set initial canvas size before resetting position
+            const wrapperSize = Math.min(pacManGameWrapper.clientWidth, window.innerHeight * 0.9);
+            pacManCanvas.width = Math.min(300, wrapperSize * 0.9);
+            pacManCanvas.height = pacManCanvas.width;
+            CELL_SIZE = pacManCanvas.width / GRID_SIZE; // Ensure CELL_SIZE is set on start
+            
+            resetPacManGame();
+            
+            window.addEventListener('keydown', pacManKeyDown);
+            pacManCanvas.addEventListener('touchstart', pacManTouchStart);
+            pacManCanvas.addEventListener('touchend', pacManTouchEnd);
+            
+            pacManGameLoopFn();
+        }
+
+        function stopPacManGame(won = false) {
+            isPacManRunning = false;
+            cancelAnimationFrame(pacManLoop);
+            
+            if (won) {
+                showMessage('DOMAIN COMPLETE!', 'You cleared the maze! Final Score: ' + pacManScore);
+            } 
+        }
+        
+        // --- SPACE INVADERS GAME VARIABLES ---
+        const siCanvas = document.getElementById('spaceInvadersCanvas');
+        const siCtx = siCanvas.getContext('2d');
+        const SI_PLAYER_SPEED = 5;
+        const SI_BULLET_SPEED = 8;
+        const SI_ALIEN_ROWS = 4;
+        const SI_ALIEN_COLS = 8;
+        const SI_ALIEN_SIZE = 20;
+        let isSiRunning = false;
+        let siGameLoop;
+        let siScore = 0;
+        let siPlayer = {
+            x: 0,
+            y: 0,
+            width: 30,
+            height: 15,
+            dx: 0,
+            cooldown: 0
+        };
+        let siPlayerBullets = [];
+        let siAliens = [];
+        let alienDx = 1; 
+
+        function initSiPlayer(canvasWidth, canvasHeight) {
+            siPlayer.x = canvasWidth / 2 - siPlayer.width / 2;
+            siPlayer.y = canvasHeight - 30;
+            siPlayer.dx = 0;
+            siPlayer.cooldown = 0;
+        }
+
+        function initSiAliens(canvasWidth) {
+            siAliens = [];
+            const startX = (canvasWidth - (SI_ALIEN_COLS * (SI_ALIEN_SIZE + 10))) / 2;
+            for (let r = 0; r < SI_ALIEN_ROWS; r++) {
+                for (let c = 0; c < SI_ALIEN_COLS; c++) {
+                    siAliens.push({
+                        x: startX + c * (SI_ALIEN_SIZE + 10),
+                        y: 50 + r * (SI_ALIEN_SIZE + 10),
+                        size: SI_ALIEN_SIZE,
+                        color: r % 2 === 0 ? '#ff00aa' : '#00ffee' // Pink and Cyan aliens
+                    });
+                }
+            }
+            alienDx = 1;
+        }
+
+        function drawSiPlayer() {
+            siCtx.fillStyle = varColor('text-color');
+            // Draw player as a simple triangle (spaceship)
+            siCtx.beginPath();
+            siCtx.moveTo(siPlayer.x, siPlayer.y + siPlayer.height); // Bottom left
+            siCtx.lineTo(siPlayer.x + siPlayer.width / 2, siPlayer.y); // Top center
+            siCtx.lineTo(siPlayer.x + siPlayer.width, siPlayer.y + siPlayer.height); // Bottom right
+            siCtx.fill();
+        }
+
+        function drawSiBullets() {
+            siCtx.fillStyle = '#ff0000';
+            siPlayerBullets.forEach(b => {
+                siCtx.fillRect(b.x - 1, b.y, 2, 5); // Simple red lines
+            });
+        }
+
+        function drawSiAliens() {
+            siAliens.forEach(alien => {
+                siCtx.fillStyle = alien.color;
+                siCtx.fillRect(alien.x, alien.y, alien.size, alien.size);
+            });
+        }
+
+        function updateSiPlayer() {
+            siPlayer.x += siPlayer.dx;
+            if (siPlayer.x < 10) siPlayer.x = 10;
+            if (siPlayer.x + siPlayer.width > siCanvas.width - 10) siPlayer.x = siCanvas.width - siPlayer.width - 10;
+            if (siPlayer.cooldown > 0) siPlayer.cooldown--;
+        }
+
+        function updateSiBullets() {
+            siPlayerBullets.forEach(b => b.y -= SI_BULLET_SPEED);
+            siPlayerBullets = siPlayerBullets.filter(b => b.y > 0);
+        }
+
+        function updateSiAliens() {
+            let shouldDrop = false;
+
+            for (const alien of siAliens) {
+                if (alien.x + SI_ALIEN_SIZE > siCanvas.width - 10 && alienDx === 1) {
+                    shouldDrop = true;
+                    break;
+                }
+                if (alien.x < 10 && alienDx === -1) {
+                    shouldDrop = true;
+                    break;
+                }
+            }
+
+            if (shouldDrop) {
+                alienDx *= -1;
+                siAliens.forEach(alien => alien.y += 10);
+            }
+
+            // Only move aliens if there are any left
+            if(siAliens.length > 0) {
+                 siAliens.forEach(alien => alien.x += alienDx * 0.5);
+            }
+
+            // Check for game over (aliens reaching the player line)
+            if (siAliens.some(alien => alien.y + alien.size >= siPlayer.y)) {
+                stopSpaceInvadersGame(false, true);
+            }
+        }
+
+        function checkSiCollisions() {
+            siPlayerBullets = siPlayerBullets.filter(bullet => {
+                let hit = false;
+                siAliens = siAliens.filter(alien => {
+                    // Check for collision between bullet and alien (simple box collision)
+                    const collisionX = bullet.x > alien.x && bullet.x < alien.x + alien.size;
+                    const collisionY = bullet.y > alien.y && bullet.y < alien.y + alien.size;
+                    
+                    if (collisionX && collisionY) {
+                        hit = true;
+                        siScore += 10;
+                        return false; // Remove alien
+                    }
+                    return true; // Keep alien
+                });
+                return !hit; // Remove bullet if it hit something
+            });
+        }
+
+        function siDrawScore() {
+            siCtx.fillStyle = varColor('text-color');
+            siCtx.font = '16px ' + varColor('font-family');
+            siCtx.textAlign = 'left';
+            siCtx.fillText('SCORE: ' + siScore, 10, 20);
+        }
+
+        function siGameLoopFn() {
+            if (!isSiRunning) return;
+
+            // Clear and redraw background
+            siCtx.clearRect(0, 0, siCanvas.width, siCanvas.height);
+            siCtx.fillStyle = '#00001a';
+            siCtx.fillRect(0, 0, siCanvas.width, siCanvas.height);
+
+            updateSiPlayer();
+            updateSiBullets();
+            updateSiAliens();
+            checkSiCollisions();
+
+            drawSiPlayer();
+            drawSiBullets();
+            drawSiAliens();
+            siDrawScore();
+
+            if (siAliens.length === 0) {
+                stopSpaceInvadersGame(true, false);
+                return;
+            }
+
+            siGameLoop = requestAnimationFrame(siGameLoopFn);
+        }
+
+        function siFireBullet() {
+            if (siPlayer.cooldown === 0) {
+                siPlayerBullets.push({
+                    x: siPlayer.x + siPlayer.width / 2,
+                    y: siPlayer.y
+                });
+                siPlayer.cooldown = 15; // Cooldown frames
+            }
+        }
+
+        function siKeyDown(e) {
+            if (!isSiRunning) return;
+            
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+                siPlayer.dx = -SI_PLAYER_SPEED;
+            } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+                siPlayer.dx = SI_PLAYER_SPEED;
+            }
+            
+            if (e.code === 'Space') {
+                e.preventDefault(); // Prevent page scroll
+                siFireBullet();
+            }
+        }
+
+        function siKeyUp(e) {
+            if (!isSiRunning) return;
+            
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA' || e.code === 'ArrowRight' || e.code === 'KeyD') {
+                siPlayer.dx = 0;
+            }
+        }
+
+        let siTouchIdentifier = null;
+        let siLastTouchX = 0;
+
+        function siTouchStart(e) {
+            if (!isSiRunning) return;
+            
+            // Fire on tap (if not already tracking movement touch)
+            if (e.touches.length === 1 && siTouchIdentifier === null) {
+                siFireBullet();
+                siTouchIdentifier = e.touches[0].identifier;
+                siLastTouchX = e.touches[0].clientX;
+            } else if (e.touches.length > 1) {
+                // If multiple touches, assume firing and movement are happening
+                 siFireBullet();
+            }
+            e.preventDefault();
+        }
+
+        function siTouchMove(e) {
+            if (!isSiRunning || siTouchIdentifier === null) return;
+
+            const touch = Array.from(e.changedTouches).find(t => t.identifier === siTouchIdentifier);
+
+            if (touch) {
+                const deltaX = touch.clientX - siLastTouchX;
+                if (Math.abs(deltaX) > 2) {
+                    siPlayer.dx = deltaX > 0 ? SI_PLAYER_SPEED : -SI_PLAYER_SPEED;
+                } else {
+                    siPlayer.dx = 0;
+                }
+                siLastTouchX = touch.clientX;
+            }
+            e.preventDefault();
+        }
+
+        function siTouchEnd(e) {
+            if (!isSiRunning) return;
+            // Only stop movement if the primary touch ended
+            const endedTouch = Array.from(e.changedTouches).find(t => t.identifier === siTouchIdentifier);
+            if(endedTouch) {
+                siPlayer.dx = 0;
+                siTouchIdentifier = null;
+            }
+            e.preventDefault();
+        }
+
+
+        function startSpaceInvadersGame() {
+            isSiRunning = true;
+            hideMessage();
+            
+            // Set canvas dimensions (responsive)
+            const wrapperWidth = spaceInvadersGameWrapper.clientWidth;
+            siCanvas.width = Math.min(400, wrapperWidth * 0.95);
+            siCanvas.height = Math.min(500, window.innerHeight * 0.8);
+            
+            // Game state reset
+            siScore = 0;
+            initSiPlayer(siCanvas.width, siCanvas.height);
+            initSiAliens(siCanvas.width);
+            siPlayerBullets = [];
+            
+            // Add input listeners
+            window.addEventListener('keydown', siKeyDown);
+            window.addEventListener('keyup', siKeyUp);
+            siCanvas.addEventListener('touchstart', siTouchStart);
+            siCanvas.addEventListener('touchmove', siTouchMove);
+            siCanvas.addEventListener('touchend', siTouchEnd);
+            
+            siGameLoopFn();
+        }
+
+        function stopSpaceInvadersGame(won = false, lost = false) {
+            isSiRunning = false;
+            cancelAnimationFrame(siGameLoop);
+            
+            window.removeEventListener('keydown', siKeyDown);
+            window.removeEventListener('keyup', siKeyUp);
+            siCanvas.removeEventListener('touchstart', siTouchStart);
+            siCanvas.removeEventListener('touchmove', siTouchMove);
+            siCanvas.removeEventListener('touchend', siTouchEnd);
+            
+            if (won) {
+                showMessage('VICTORY ACHIEVED', 'All invaders eliminated! Final Score: ' + siScore + '. Press SPACE or tap to restart.');
+            } else if (lost) {
+                showMessage('DEFENSE BREACHED', 'The enemy landed. Final Score: ' + siScore + '. Press SPACE or tap to restart.');
+            } else {
+                return;
+            }
+            
+            // Allow restart
+            const restartHandler = (e) => {
+                if ((e.type === 'keydown' && e.code === 'Space') || e.type === 'touchstart') {
+                    if (e.type === 'keydown') e.preventDefault();
+                    window.removeEventListener('keydown', restartHandler);
+                    siCanvas.removeEventListener('touchstart', restartHandler);
+                    startSpaceInvadersGame();
+                }
+            };
+            window.addEventListener('keydown', restartHandler);
+            siCanvas.addEventListener('touchstart', restartHandler);
+        }
+
+        // --- CORE VIEW MANAGEMENT ---
+        function changeView(newView) {
+            if (currentView === newView) return;
+
+            // Stop all active game loops and remove listeners
+            if (currentView === 'dino') {
+                window.removeEventListener('keydown', dinoJump);
+                dinoCanvas.removeEventListener('touchstart', dinoJump);
+                stopDinoGame(false);
+            }
+            if (currentView === 'pacman') {
+                window.removeEventListener('keydown', pacManKeyDown);
+                pacManCanvas.removeEventListener('touchstart', pacManTouchStart);
+                pacManCanvas.removeEventListener('touchend', pacManTouchEnd);
+                stopPacManGame(false);
+            }
+            if (currentView === 'spaceinvaders') {
+                stopSpaceInvadersGame(false, false); // Clear listeners and loop without showing message
+            }
+            
+            hideMessage(); // Hide any active game messages
+
+            // 1. Fade out current content
+            views[currentView].style.opacity = '0';
+            
+            // Handle specific transition logic
+            if (currentView === 'intro' && newView === 'homepage') {
+                clearTimeout(distortionTimeout);
+                document.querySelector('.background-dots').style.opacity = '0';
+            }
+
+            // 2. Wait for fade out, then switch display modes
+            setTimeout(() => {
+                views[currentView].classList.add('hidden-view');
+
+                currentView = newView;
+                views[currentView].classList.remove('hidden-view');
+                
+                // 3. Fade in the new content
+                setTimeout(() => {
+                    views[currentView].style.opacity = '1';
+
+                    // 4. Start game loop if entering a game view
+                    if (newView === 'dino') {
+                        startDinoGame();
+                    } else if (newView === 'pacman') {
+                         startPacManGame();
+                    } else if (newView === 'spaceinvaders') {
+                        startSpaceInvadersGame();
+                    }
+
+                    // 5. Update document title for context
+                    document.title = {
+                        'intro': 'The Future is almost here..',
+                        'homepage': 'Homepage | Three Domains',
+                        'dino': 'Domain 1 | Dino-Game',
+                        'pacman': 'Domain 2 | Pac-Game',
+                        'spaceinvaders': 'Domain 3 | Space-Invaders',
+                    }[newView];
+
+                }, 50); // Small delay to ensure display change registers before fading in
+
+            }, 500); // Wait for the opacity transition
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial Intro Screen Animation Start
+            setTimeout(scheduleDistortion, 2000); 
+
+            // Intro Button Handler: Go to Homepage
+            abyssButton.addEventListener('click', () => changeView('homepage'));
+
+            // Homepage Card Handlers (Event delegation)
+            cardGrid.addEventListener('click', (e) => {
+                const card = e.target.closest('.blank-space-card');
+                if (card) {
+                    const domain = card.getAttribute('data-domain');
+                    if (domain && views[domain]) {
+                         changeView(domain);
+                    } else {
+                        console.log(`Domain ${domain} clicked. This slot is currently empty.`);
+                        card.classList.add('clicked');
+                        setTimeout(() => { card.classList.remove('clicked'); }, 100);
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html>
