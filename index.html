@@ -286,7 +286,6 @@
     <div class="background-dots"></div>
     
     <div class="app-wrapper">
-        <!-- VIEW 1: INTRO SCREEN -->
         <div class="content-wrapper" id="introWrapper">
             <h1 class="hero-text" data-text="The Future is almost here" id="heroText">
                 The Future is almost here
@@ -296,7 +295,6 @@
             </button>
         </div>
 
-        <!-- VIEW 2: HOMEPAGE -->
         <div class="homepage-wrapper hidden-view" id="homepageWrapper">
             <h2 class="homepage-title">Three Domains Accessed</h2>
             <div class="card-grid" id="cardGrid">
@@ -312,7 +310,6 @@
             </div>
         </div>
 
-        <!-- VIEW 3: DINO GAME -->
         <div class="game-wrapper hidden-view" id="dinoGameWrapper">
             <canvas id="dinoCanvas" width="600" height="150"></canvas>
             <button class="back-button" onclick="changeView('homepage')">
@@ -320,7 +317,6 @@
             </button>
         </div>
         
-        <!-- VIEW 4: PAC-MAN GAME -->
         <div class="game-wrapper hidden-view" id="pacManGameWrapper">
             <canvas id="pacManCanvas" width="300" height="300"></canvas>
             <div class="game-controls">
@@ -330,7 +326,6 @@
             </div>
         </div>
         
-        <!-- VIEW 5: SPACE INVADERS GAME -->
         <div class="game-wrapper hidden-view" id="spaceInvadersGameWrapper">
             <canvas id="spaceInvadersCanvas" width="400" height="500"></canvas>
             <div class="game-controls">
@@ -340,7 +335,6 @@
             </div>
         </div>
         
-        <!-- MESSAGE BOX (Used by all games) -->
         <div id="messageBox" class="message-box">
             <h3 id="messageTitle"></h3>
             <p id="messageText"></p>
@@ -418,7 +412,7 @@
                     clearInterval(interval);
                     resetText();
                     if (currentView === 'intro') {
-                         scheduleDistortion(); 
+                        scheduleDistortion(); 
                     }
                 }, duration);
 
@@ -564,6 +558,10 @@
             isDinoRunning = false;
             cancelAnimationFrame(dinoGameLoop);
             
+            // Remove listeners
+            window.removeEventListener('keydown', dinoJump);
+            dinoCanvas.removeEventListener('touchstart', dinoJump);
+
             if (collided) {
                 showMessage('GAME OVER', 'Final Score: ' + Math.floor(score) + '. Press SPACE or tap to try again.');
                 
@@ -619,7 +617,13 @@
             pos: { x: 7 * CELL_SIZE, y: 7 * CELL_SIZE },
             mouthOpen: 0,
         };
+
+        // --- NEW CHIHUAHUA VARIABLES ---
+        let chihuahua = {};
+        const CHIHUAHUA_SPEED = 0.08; // Slightly slower than Pac-Man
+        const CHIHUAHUA_COLOR = '#ff0066'; // Neon pink/red
         
+        // --- MODIFIED FUNCTION ---
         function resetPacManGame() {
             mapData = PAC_MAP.map(row => [...row]);
             
@@ -629,6 +633,13 @@
             pacMan.nextDir = { x: 1, y: 0 };
             pacMan.pos = { x: pacMan.x * CELL_SIZE + CELL_SIZE / 2, y: pacMan.y * CELL_SIZE + CELL_SIZE / 2 };
             pacManScore = 0;
+
+            // Reset the chihuahua
+            chihuahua.x = 1;
+            chihuahua.y = 1;
+            chihuahua.pos = { x: chihuahua.x * CELL_SIZE + CELL_SIZE / 2, y: chihuahua.y * CELL_SIZE + CELL_SIZE / 2 };
+            chihuahua.dir = { x: 1, y: 0 }; // Start moving right
+            chihuahua.speed = CHIHUAHUA_SPEED;
         }
 
         function drawPacManGrid() {
@@ -698,12 +709,12 @@
                  );
 
                  if (!isWall(nextX, nextY) && distToCenter < CELL_SIZE / 4) {
-                    // Snap to center and change direction
-                    pacMan.pos.x = currentX * CELL_SIZE + cellCenter;
-                    pacMan.pos.y = currentY * CELL_SIZE + cellCenter;
-                    
-                    pacMan.dir = pacMan.nextDir;
-                    pacMan.nextDir = { x: 0, y: 0 };
+                     // Snap to center and change direction
+                     pacMan.pos.x = currentX * CELL_SIZE + cellCenter;
+                     pacMan.pos.y = currentY * CELL_SIZE + cellCenter;
+                     
+                     pacMan.dir = pacMan.nextDir;
+                     pacMan.nextDir = { x: 0, y: 0 };
                  }
             }
             
@@ -727,8 +738,8 @@
                     checkWinCondition();
                 }
             } else {
-                 // Stop moving if hit a wall
-                 pacMan.dir = { x: 0, y: 0 };
+                // Stop moving if hit a wall
+                pacMan.dir = { x: 0, y: 0 };
             }
 
             // Simple boundary wrapping for open ends (r, 0, c, 7 and r, 14, c, 7)
@@ -746,7 +757,7 @@
                 }
             }
             if (dotsRemaining === 0) {
-                stopPacManGame(true);
+                stopPacManGame(true, false); // (won = true, lost = false)
             }
         }
         
@@ -757,6 +768,103 @@
              pacManCtx.fillText('SCORE: ' + pacManScore, pacManCanvas.width - 10, 20);
         }
 
+        // --- NEW CHIHUAHUA FUNCTIONS ---
+        function drawChihuahua() {
+            const centerX = chihuahua.pos.x;
+            const centerY = chihuahua.pos.y;
+            const size = CELL_SIZE * 0.8; // Slightly smaller than the cell
+
+            // Body
+            pacManCtx.fillStyle = CHIHUAHUA_COLOR;
+            pacManCtx.fillRect(centerX - size / 2, centerY - size / 2, size, size);
+            
+            // "Evil" eyes
+            pacManCtx.fillStyle = '#fff';
+            pacManCtx.fillRect(centerX - size / 4, centerY - size / 4, size / 8, size / 8);
+            pacManCtx.fillRect(centerX + size / 4 - size / 8, centerY - size / 4, size / 8, size / 8);
+        }
+
+        function updateChihuahua() {
+            if (!isPacManRunning) return;
+
+            const cellCenter = CELL_SIZE / 2;
+            // Check if at or near the center of a cell (ready to make a decision)
+            const distToCenter = Math.hypot(
+                chihuahua.pos.x - (chihuahua.x * CELL_SIZE + cellCenter),
+                chihuahua.pos.y - (chihuahua.y * CELL_SIZE + cellCenter)
+            );
+
+            // Use a small threshold based on speed to prevent overshooting
+            if (distToCenter < (chihuahua.speed * CELL_SIZE) / 2) {
+                // Snap to center
+                chihuahua.pos.x = chihuahua.x * CELL_SIZE + cellCenter;
+                chihuahua.pos.y = chihuahua.y * CELL_SIZE + cellCenter;
+
+                // --- AI Decision Logic ---
+                const possibleMoves = [];
+                const directions = [
+                    { x: 1, y: 0 }, // Right
+                    { x: -1, y: 0 }, // Left
+                    { x: 0, y: 1 }, // Down
+                    { x: 0, y: -1 }  // Up
+                ];
+
+                for (const move of directions) {
+                    if (!isWall(chihuahua.x + move.x, chihuahua.y + move.y)) {
+                        // Don't add the reverse direction unless it's a dead end
+                        if (move.x !== -chihuahua.dir.x || move.y !== -chihuahua.dir.y || (chihuahua.dir.x === 0 && chihuahua.dir.y === 0)) {
+                            possibleMoves.push(move);
+                        }
+                    }
+                }
+                
+                let bestMove = null;
+                
+                if (possibleMoves.length > 0) {
+                    // Find the move that gets closest to Pac-Man
+                    let minDist = Infinity;
+                    for (const move of possibleMoves) {
+                        const newX = chihuahua.x + move.x;
+                        const newY = chihuahua.y + move.y;
+                        const dist = Math.hypot(newX - pacMan.x, newY - pacMan.y);
+                        
+                        if (dist < minDist) {
+                            minDist = dist;
+                            bestMove = move;
+                        }
+                    }
+                } else {
+                    // At a dead end, only option is to reverse
+                    const reverseMove = { x: -chihuahua.dir.x, y: -chihuahua.dir.y };
+                    if (!isWall(chihuahua.x + reverseMove.x, chihuahua.y + reverseMove.y)) {
+                        bestMove = reverseMove;
+                    } else {
+                        bestMove = {x: 0, y: 0}; // Stuck, stop
+                    }
+                }
+                
+                if (bestMove) {
+                    chihuahua.dir = bestMove;
+                }
+            }
+
+            // Move the chihuahua
+            chihuahua.pos.x += chihuahua.dir.x * chihuahua.speed * CELL_SIZE;
+            chihuahua.pos.y += chihuahua.dir.y * chihuahua.speed * CELL_SIZE;
+
+            // Update grid position
+            chihuahua.x = Math.floor(chihuahua.pos.x / CELL_SIZE);
+            chihuahua.y = Math.floor(chihuahua.pos.y / CELL_SIZE);
+        }
+
+        function checkChihuahuaCollision() {
+            // Check if Pac-Man and Chihuahua are on the same grid tile
+            if (pacMan.x === chihuahua.x && pacMan.y === chihuahua.y) {
+                stopPacManGame(false, true); // (won = false, lost = true)
+            }
+        }
+
+        // --- MODIFIED FUNCTION ---
         function pacManGameLoopFn() {
             if (!isPacManRunning) return;
 
@@ -770,13 +878,23 @@
                 // Adjust position based on new scale
                 pacMan.pos.x = (pacMan.pos.x / (CELL_SIZE || newCellSize)) * newCellSize;
                 pacMan.pos.y = (pacMan.pos.y / (CELL_SIZE || newCellSize)) * newCellSize;
+                
+                // ALSO ADJUST CHIHUAHUA'S POSITION
+                chihuahua.pos.x = (chihuahua.pos.x / (CELL_SIZE || newCellSize)) * newCellSize;
+                chihuahua.pos.y = (chihuahua.pos.y / (CELL_SIZE || newCellSize)) * newCellSize;
+                
                 CELL_SIZE = newCellSize; 
             }
             
             updatePacMan();
+            updateChihuahua(); // <-- ADDED
+            
             drawPacManGrid();
             drawPacMan();
+            drawChihuahua(); // <-- ADDED
             drawPacManScore();
+            
+            checkChihuahuaCollision(); // <-- ADDED
 
             pacManLoop = requestAnimationFrame(pacManGameLoopFn);
         }
@@ -866,12 +984,32 @@
             pacManGameLoopFn();
         }
 
-        function stopPacManGame(won = false) {
+        // --- MODIFIED FUNCTION ---
+        function stopPacManGame(won = false, lost = false) {
             isPacManRunning = false;
             cancelAnimationFrame(pacManLoop);
             
+            // Remove listeners to prevent them from stacking
+            window.removeEventListener('keydown', pacManKeyDown);
+            pacManCanvas.removeEventListener('touchstart', pacManTouchStart);
+            pacManCanvas.removeEventListener('touchend', pacManTouchEnd);
+            
             if (won) {
                 showMessage('DOMAIN COMPLETE!', 'You cleared the maze! Final Score: ' + pacManScore);
+            } else if (lost) {
+                showMessage('GAME OVER', 'Caught by the evil chihuahua! Press SPACE or tap to try again.');
+                
+                // Add listener back to restart game on spacebar/tap
+                const restartHandler = (e) => {
+                    if ((e.type === 'keydown' && e.code === 'Space') || e.type === 'touchstart') {
+                        if (e.type === 'keydown') e.preventDefault(); 
+                        window.removeEventListener('keydown', restartHandler);
+                        pacManCanvas.removeEventListener('touchstart', restartHandler);
+                        startPacManGame();
+                    }
+                };
+                window.addEventListener('keydown', restartHandler);
+                pacManCanvas.addEventListener('touchstart', restartHandler);
             } 
         }
         
@@ -900,370 +1038,332 @@
 
         function initSiPlayer(canvasWidth, canvasHeight) {
             siPlayer.x = canvasWidth / 2 - siPlayer.width / 2;
-            siPlayer.y = canvasHeight - 30;
-            siPlayer.dx = 0;
-            siPlayer.cooldown = 0;
+            siPlayer.y = canvasHeight - siPlayer.height - 20;
         }
 
-        function initSiAliens(canvasWidth) {
+        function createSiAliens(canvasWidth) {
             siAliens = [];
-            const startX = (canvasWidth - (SI_ALIEN_COLS * (SI_ALIEN_SIZE + 10))) / 2;
+            const hSpacing = (canvasWidth * 0.8) / SI_ALIEN_COLS;
+            const vSpacing = 30;
+            const startX = (canvasWidth - (hSpacing * (SI_ALIEN_COLS - 1))) / 2;
+            
             for (let r = 0; r < SI_ALIEN_ROWS; r++) {
                 for (let c = 0; c < SI_ALIEN_COLS; c++) {
                     siAliens.push({
-                        x: startX + c * (SI_ALIEN_SIZE + 10),
-                        y: 50 + r * (SI_ALIEN_SIZE + 10),
-                        size: SI_ALIEN_SIZE,
-                        color: r % 2 === 0 ? '#ff00aa' : '#00ffee' // Pink and Cyan aliens
+                        x: startX + c * hSpacing - (SI_ALIEN_SIZE / 2),
+                        y: 50 + r * vSpacing,
+                        width: SI_ALIEN_SIZE,
+                        height: SI_ALIEN_SIZE
                     });
                 }
             }
-            alienDx = 1;
         }
 
         function drawSiPlayer() {
-            siCtx.fillStyle = varColor('text-color');
-            // Draw player as a simple triangle (spaceship)
-            siCtx.beginPath();
-            siCtx.moveTo(siPlayer.x, siPlayer.y + siPlayer.height); // Bottom left
-            siCtx.lineTo(siPlayer.x + siPlayer.width / 2, siPlayer.y); // Top center
-            siCtx.lineTo(siPlayer.x + siPlayer.width, siPlayer.y + siPlayer.height); // Bottom right
-            siCtx.fill();
-        }
-
-        function drawSiBullets() {
-            siCtx.fillStyle = '#ff0000';
-            siPlayerBullets.forEach(b => {
-                siCtx.fillRect(b.x - 1, b.y, 2, 5); // Simple red lines
-            });
+            siCtx.fillStyle = varColor('text-color'); // Neon teal
+            siCtx.fillRect(siPlayer.x, siPlayer.y, siPlayer.width, siPlayer.height);
+            // "Cockpit"
+            siCtx.fillStyle = varColor('accent-color'); // Blue
+            siCtx.fillRect(siPlayer.x + siPlayer.width / 2 - 2, siPlayer.y, 4, 4);
         }
 
         function drawSiAliens() {
+            siCtx.fillStyle = '#ff00ff'; // Neon magenta
             siAliens.forEach(alien => {
-                siCtx.fillStyle = alien.color;
-                siCtx.fillRect(alien.x, alien.y, alien.size, alien.size);
+                siCtx.fillRect(alien.x, alien.y, alien.width, alien.height);
             });
         }
 
-        function updateSiPlayer() {
+        function drawSiBullets() {
+            siCtx.fillStyle = '#ff0000'; // Red
+            siPlayerBullets.forEach(bullet => {
+                siCtx.fillRect(bullet.x - 1, bullet.y, 3, 10);
+            });
+        }
+
+        function updateSiPlayer(canvasWidth) {
             siPlayer.x += siPlayer.dx;
-            if (siPlayer.x < 10) siPlayer.x = 10;
-            if (siPlayer.x + siPlayer.width > siCanvas.width - 10) siPlayer.x = siCanvas.width - siPlayer.width - 10;
+            
+            // Boundaries
+            if (siPlayer.x < 0) siPlayer.x = 0;
+            if (siPlayer.x + siPlayer.width > canvasWidth) siPlayer.x = canvasWidth - siPlayer.width;
+            
+            // Cooldown for shooting
             if (siPlayer.cooldown > 0) siPlayer.cooldown--;
         }
 
         function updateSiBullets() {
-            siPlayerBullets.forEach(b => b.y -= SI_BULLET_SPEED);
-            siPlayerBullets = siPlayerBullets.filter(b => b.y > 0);
+            siPlayerBullets = siPlayerBullets.filter(bullet => bullet.y > 0);
+            siPlayerBullets.forEach(bullet => bullet.y -= SI_BULLET_SPEED);
         }
 
-        function updateSiAliens() {
-            let shouldDrop = false;
-
-            for (const alien of siAliens) {
-                if (alien.x + SI_ALIEN_SIZE > siCanvas.width - 10 && alienDx === 1) {
-                    shouldDrop = true;
-                    break;
+        function updateSiAliens(canvasWidth) {
+            let hitWall = false;
+            siAliens.forEach(alien => {
+                alien.x += alienDx;
+                if (alien.x <= 0 || alien.x + alien.width >= canvasWidth) {
+                    hitWall = true;
                 }
-                if (alien.x < 10 && alienDx === -1) {
-                    shouldDrop = true;
-                    break;
-                }
-            }
-
-            if (shouldDrop) {
-                alienDx *= -1;
-                siAliens.forEach(alien => alien.y += 10);
-            }
-
-            // Only move aliens if there are any left
-            if(siAliens.length > 0) {
-                 siAliens.forEach(alien => alien.x += alienDx * 0.5);
-            }
-
-            // Check for game over (aliens reaching the player line)
-            if (siAliens.some(alien => alien.y + alien.size >= siPlayer.y)) {
-                stopSpaceInvadersGame(false, true);
-            }
-        }
-
-        function checkSiCollisions() {
-            siPlayerBullets = siPlayerBullets.filter(bullet => {
-                let hit = false;
-                siAliens = siAliens.filter(alien => {
-                    // Check for collision between bullet and alien (simple box collision)
-                    const collisionX = bullet.x > alien.x && bullet.x < alien.x + alien.size;
-                    const collisionY = bullet.y > alien.y && bullet.y < alien.y + alien.size;
-                    
-                    if (collisionX && collisionY) {
-                        hit = true;
-                        siScore += 10;
-                        return false; // Remove alien
-                    }
-                    return true; // Keep alien
-                });
-                return !hit; // Remove bullet if it hit something
             });
+
+            if (hitWall) {
+                alienDx *= -1; // Reverse direction
+                siAliens.forEach(alien => alien.y += 10); // Move down
+            }
         }
 
-        function siDrawScore() {
-            siCtx.fillStyle = varColor('text-color');
-            siCtx.font = '16px ' + varColor('font-family');
-            siCtx.textAlign = 'left';
-            siCtx.fillText('SCORE: ' + siScore, 10, 20);
-        }
-
-        function siGameLoopFn() {
-            if (!isSiRunning) return;
-
-            // Clear and redraw background
-            siCtx.clearRect(0, 0, siCanvas.width, siCanvas.height);
-            siCtx.fillStyle = '#00001a';
-            siCtx.fillRect(0, 0, siCanvas.width, siCanvas.height);
-
-            updateSiPlayer();
-            updateSiBullets();
-            updateSiAliens();
-            checkSiCollisions();
-
-            drawSiPlayer();
-            drawSiBullets();
-            drawSiAliens();
-            siDrawScore();
-
-            if (siAliens.length === 0) {
-                stopSpaceInvadersGame(true, false);
-                return;
+        function siCollisionDetection() {
+            // Bullet hits alien
+            for (let i = siPlayerBullets.length - 1; i >= 0; i--) {
+                const bullet = siPlayerBullets[i];
+                for (let j = siAliens.length - 1; j >= 0; j--) {
+                    const alien = siAliens[j];
+                    
+                    if (bullet.x > alien.x && bullet.x < alien.x + alien.width &&
+                        bullet.y > alien.y && bullet.y < alien.y + alien.height) {
+                        
+                        // Hit!
+                        siPlayerBullets.splice(i, 1);
+                        siAliens.splice(j, 1);
+                        siScore += 100;
+                        break; 
+                    }
+                }
             }
 
-            siGameLoop = requestAnimationFrame(siGameLoopFn);
-        }
+            // Alien hits player (or bottom)
+            for (const alien of siAliens) {
+                if (alien.y + alien.height > siPlayer.y) {
+                    stopSpaceInvadersGame(false, true); // (won=false, lost=true)
+                    return;
+                }
+            }
 
-        function siFireBullet() {
-            if (siPlayer.cooldown === 0) {
-                siPlayerBullets.push({
-                    x: siPlayer.x + siPlayer.width / 2,
-                    y: siPlayer.y
-                });
-                siPlayer.cooldown = 15; // Cooldown frames
+            // Check for win
+            if (siAliens.length === 0) {
+                stopSpaceInvadersGame(true, false); // (won=true, lost=false)
             }
         }
 
         function siKeyDown(e) {
             if (!isSiRunning) return;
+            e.preventDefault();
             
             if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
                 siPlayer.dx = -SI_PLAYER_SPEED;
             } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
                 siPlayer.dx = SI_PLAYER_SPEED;
-            }
-            
-            if (e.code === 'Space') {
-                e.preventDefault(); // Prevent page scroll
-                siFireBullet();
+            } else if (e.code === 'Space' || e.code === 'ArrowUp') {
+                if (siPlayer.cooldown === 0) {
+                    siPlayerBullets.push({ x: siPlayer.x + siPlayer.width / 2, y: siPlayer.y });
+                    siPlayer.cooldown = 20; // 20 frames cooldown
+                }
             }
         }
 
         function siKeyUp(e) {
-            if (!isSiRunning) return;
-            
             if (e.code === 'ArrowLeft' || e.code === 'KeyA' || e.code === 'ArrowRight' || e.code === 'KeyD') {
                 siPlayer.dx = 0;
             }
         }
-
-        let siTouchIdentifier = null;
-        let siLastTouchX = 0;
-
+        
+        // Touch controls for Space Invaders
+        let siTouchStartX = 0;
+        let siIsTouching = false;
+        
         function siTouchStart(e) {
-            if (!isSiRunning) return;
-            
-            // Fire on tap (if not already tracking movement touch)
-            if (e.touches.length === 1 && siTouchIdentifier === null) {
-                siFireBullet();
-                siTouchIdentifier = e.touches[0].identifier;
-                siLastTouchX = e.touches[0].clientX;
-            } else if (e.touches.length > 1) {
-                // If multiple touches, assume firing and movement are happening
-                 siFireBullet();
-            }
-            e.preventDefault();
+             if (!isSiRunning) return;
+             e.preventDefault();
+             siIsTouching = true;
+             siTouchStartX = e.touches[0].clientX;
+             
+             // Simple tap-to-shoot logic
+             if (e.touches[0].clientY < siCanvas.height * 0.8 && siPlayer.cooldown === 0) {
+                 siPlayerBullets.push({ x: siPlayer.x + siPlayer.width / 2, y: siPlayer.y });
+                 siPlayer.cooldown = 20;
+             }
         }
-
+        
         function siTouchMove(e) {
-            if (!isSiRunning || siTouchIdentifier === null) return;
-
-            const touch = Array.from(e.changedTouches).find(t => t.identifier === siTouchIdentifier);
-
-            if (touch) {
-                const deltaX = touch.clientX - siLastTouchX;
-                if (Math.abs(deltaX) > 2) {
-                    siPlayer.dx = deltaX > 0 ? SI_PLAYER_SPEED : -SI_PLAYER_SPEED;
-                } else {
-                    siPlayer.dx = 0;
-                }
-                siLastTouchX = touch.clientX;
-            }
+            if (!isSiRunning || !siIsTouching) return;
             e.preventDefault();
+            const touchX = e.touches[0].clientX;
+            const diff = touchX - siTouchStartX;
+            
+            // Move player based on touch position relative to canvas
+            const canvasRect = siCanvas.getBoundingClientRect();
+            const touchXInCanvas = touchX - canvasRect.left;
+            
+            siPlayer.x = touchXInCanvas - (siPlayer.width / 2);
+            
+            // Update touch start for continuous drag
+            siTouchStartX = touchX;
         }
-
+        
         function siTouchEnd(e) {
-            if (!isSiRunning) return;
-            // Only stop movement if the primary touch ended
-            const endedTouch = Array.from(e.changedTouches).find(t => t.identifier === siTouchIdentifier);
-            if(endedTouch) {
-                siPlayer.dx = 0;
-                siTouchIdentifier = null;
-            }
-            e.preventDefault();
+            siIsTouching = false;
         }
 
+        function drawSiScore() {
+            siCtx.fillStyle = varColor('dot-color');
+            siCtx.font = '20px ' + varColor('font-family');
+            siCtx.textAlign = 'left';
+            siCtx.fillText('SCORE: ' + siScore, 10, 30);
+        }
+
+        function siGameLoopFn() {
+            if (!isSiRunning) return;
+
+            // Responsive canvas size
+            const wrapperWidth = spaceInvadersGameWrapper.clientWidth;
+            const targetWidth = Math.min(400, wrapperWidth * 0.95);
+            const targetHeight = (targetWidth / 4) * 5; // Maintain 4:5 aspect ratio
+            
+            if (siCanvas.width !== targetWidth) {
+                siCanvas.width = targetWidth;
+                siCanvas.height = targetHeight;
+                // Re-init positions based on new size
+                initSiPlayer(siCanvas.width, siCanvas.height);
+                createSiAliens(siCanvas.width);
+            }
+            
+            siCtx.clearRect(0, 0, siCanvas.width, siCanvas.height);
+
+            updateSiPlayer(siCanvas.width);
+            updateSiBullets();
+            updateSiAliens(siCanvas.width);
+            siCollisionDetection();
+
+            drawSiPlayer();
+            drawSiAliens();
+            drawSiBullets();
+            drawSiScore();
+
+            siGameLoop = requestAnimationFrame(siGameLoopFn);
+        }
 
         function startSpaceInvadersGame() {
             isSiRunning = true;
             hideMessage();
             
-            // Set canvas dimensions (responsive)
+            // Set initial size
             const wrapperWidth = spaceInvadersGameWrapper.clientWidth;
             siCanvas.width = Math.min(400, wrapperWidth * 0.95);
-            siCanvas.height = Math.min(500, window.innerHeight * 0.8);
+            siCanvas.height = (siCanvas.width / 4) * 5; // 4:5 aspect ratio
             
-            // Game state reset
             siScore = 0;
-            initSiPlayer(siCanvas.width, siCanvas.height);
-            initSiAliens(siCanvas.width);
+            siPlayer.dx = 0;
+            siPlayer.cooldown = 0;
             siPlayerBullets = [];
+            alienDx = 1;
             
-            // Add input listeners
+            initSiPlayer(siCanvas.width, siCanvas.height);
+            createSiAliens(siCanvas.width);
+
             window.addEventListener('keydown', siKeyDown);
             window.addEventListener('keyup', siKeyUp);
             siCanvas.addEventListener('touchstart', siTouchStart);
             siCanvas.addEventListener('touchmove', siTouchMove);
             siCanvas.addEventListener('touchend', siTouchEnd);
-            
+
             siGameLoopFn();
         }
 
         function stopSpaceInvadersGame(won = false, lost = false) {
             isSiRunning = false;
             cancelAnimationFrame(siGameLoop);
-            
+
             window.removeEventListener('keydown', siKeyDown);
             window.removeEventListener('keyup', siKeyUp);
             siCanvas.removeEventListener('touchstart', siTouchStart);
             siCanvas.removeEventListener('touchmove', siTouchMove);
             siCanvas.removeEventListener('touchend', siTouchEnd);
-            
+
             if (won) {
-                showMessage('VICTORY ACHIEVED', 'All invaders eliminated! Final Score: ' + siScore + '. Press SPACE or tap to restart.');
+                showMessage('DOMAIN CLEARED!', 'Final Score: ' + siScore + '. Press SPACE or tap to play again.');
             } else if (lost) {
-                showMessage('DEFENSE BREACHED', 'The enemy landed. Final Score: ' + siScore + '. Press SPACE or tap to restart.');
-            } else {
-                return;
+                showMessage('GAME OVER', 'The invaders reached you! Score: ' + siScore + '. Press SPACE or tap to retry.');
             }
             
-            // Allow restart
-            const restartHandler = (e) => {
-                if ((e.type === 'keydown' && e.code === 'Space') || e.type === 'touchstart') {
-                    if (e.type === 'keydown') e.preventDefault();
-                    window.removeEventListener('keydown', restartHandler);
-                    siCanvas.removeEventListener('touchstart', restartHandler);
-                    startSpaceInvadersGame();
-                }
-            };
-            window.addEventListener('keydown', restartHandler);
-            siCanvas.addEventListener('touchstart', restartHandler);
-        }
-
-        // --- CORE VIEW MANAGEMENT ---
-        function changeView(newView) {
-            if (currentView === newView) return;
-
-            // Stop all active game loops and remove listeners
-            if (currentView === 'dino') {
-                window.removeEventListener('keydown', dinoJump);
-                dinoCanvas.removeEventListener('touchstart', dinoJump);
-                stopDinoGame(false);
-            }
-            if (currentView === 'pacman') {
-                window.removeEventListener('keydown', pacManKeyDown);
-                pacManCanvas.removeEventListener('touchstart', pacManTouchStart);
-                pacManCanvas.removeEventListener('touchend', pacManTouchEnd);
-                stopPacManGame(false);
-            }
-            if (currentView === 'spaceinvaders') {
-                stopSpaceInvadersGame(false, false); // Clear listeners and loop without showing message
-            }
-            
-            hideMessage(); // Hide any active game messages
-
-            // 1. Fade out current content
-            views[currentView].style.opacity = '0';
-            
-            // Handle specific transition logic
-            if (currentView === 'intro' && newView === 'homepage') {
-                clearTimeout(distortionTimeout);
-                document.querySelector('.background-dots').style.opacity = '0';
-            }
-
-            // 2. Wait for fade out, then switch display modes
-            setTimeout(() => {
-                views[currentView].classList.add('hidden-view');
-
-                currentView = newView;
-                views[currentView].classList.remove('hidden-view');
-                
-                // 3. Fade in the new content
-                setTimeout(() => {
-                    views[currentView].style.opacity = '1';
-
-                    // 4. Start game loop if entering a game view
-                    if (newView === 'dino') {
-                        startDinoGame();
-                    } else if (newView === 'pacman') {
-                         startPacManGame();
-                    } else if (newView === 'spaceinvaders') {
+            if (won || lost) {
+                // Add listener back to restart game on spacebar/tap
+                const restartHandler = (e) => {
+                    if ((e.type === 'keydown' && e.code === 'Space') || e.type === 'touchstart') {
+                        if (e.type === 'keydown') e.preventDefault(); 
+                        window.removeEventListener('keydown', restartHandler);
+                        siCanvas.removeEventListener('touchstart', restartHandler);
                         startSpaceInvadersGame();
                     }
-
-                    // 5. Update document title for context
-                    document.title = {
-                        'intro': 'The Future is almost here..',
-                        'homepage': 'Homepage | Three Domains',
-                        'dino': 'Domain 1 | Dino-Game',
-                        'pacman': 'Domain 2 | Pac-Game',
-                        'spaceinvaders': 'Domain 3 | Space-Invaders',
-                    }[newView];
-
-                }, 50); // Small delay to ensure display change registers before fading in
-
-            }, 500); // Wait for the opacity transition
+                };
+                window.addEventListener('keydown', restartHandler);
+                siCanvas.addEventListener('touchstart', restartHandler);
+            }
         }
 
-        // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initial Intro Screen Animation Start
-            setTimeout(scheduleDistortion, 2000); 
 
-            // Intro Button Handler: Go to Homepage
-            abyssButton.addEventListener('click', () => changeView('homepage'));
+        // --- VIEW MANAGEMENT ---
+        function changeView(targetView) {
+            const currentWrapper = views[currentView];
+            const targetWrapper = views[targetView];
 
-            // Homepage Card Handlers (Event delegation)
-            cardGrid.addEventListener('click', (e) => {
-                const card = e.target.closest('.blank-space-card');
-                if (card) {
-                    const domain = card.getAttribute('data-domain');
-                    if (domain && views[domain]) {
-                         changeView(domain);
-                    } else {
-                        console.log(`Domain ${domain} clicked. This slot is currently empty.`);
-                        card.classList.add('clicked');
-                        setTimeout(() => { card.classList.remove('clicked'); }, 100);
+            // Stop any running game loops when changing views
+            if (currentView === 'dino') stopDinoGame();
+            if (currentView === 'pacman') stopPacManGame();
+            if (currentView === 'spaceinvaders') stopSpaceInvadersGame();
+
+            clearTimeout(distortionTimeout);
+            hideMessage();
+
+            // Fade out current view
+            if (currentWrapper) {
+                currentWrapper.style.opacity = '0';
+                setTimeout(() => {
+                    currentWrapper.classList.add('hidden-view');
+                    
+                    // Fade in new view
+                    if (targetWrapper) {
+                        targetWrapper.classList.remove('hidden-view');
+                        setTimeout(() => {
+                            targetWrapper.style.opacity = '1';
+                        }, 50); // Short delay to ensure 'display' change is registered
                     }
-                }
-            });
+                }, 500); // Match this to CSS transition time
+            }
+
+            currentView = targetView;
+
+            // Start logic for the new view
+            if (currentView === 'intro') {
+                scheduleDistortion();
+            } else if (currentView === 'dino') {
+                startDinoGame();
+            } else if (currentView === 'pacman') {
+                startPacManGame();
+            } else if (currentView === 'spaceinvaders') {
+                startSpaceInvadersGame();
+            }
+        }
+
+        // --- INITIAL EVENT LISTENERS ---
+        abyssButton.addEventListener('click', () => {
+            changeView('homepage');
         });
+
+        cardGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('.blank-space-card');
+            if (card) {
+                const domain = card.dataset.domain;
+                if (domain) {
+                    changeView(domain);
+                }
+            }
+        });
+
+        // Start the intro effect
+        window.addEventListener('load', () => {
+            scheduleDistortion();
+        });
+
     </script>
 </body>
 </html>
-
